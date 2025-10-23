@@ -1,11 +1,11 @@
 {
 	"id": "sample-plugin",
 	"name": "Sample Plugin",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "{placeholder}",
-	"author": "xjiaxiang_86@163.com",
-	"authorUrl": "https://github.com/SaiRS",
+	"author": "xjiaxiang86@gmail.com",
+	"authorUrl": "https://github.com/xjiaxiang",
 	"fundingUrl": "",
 	"isDesktopOnly": false
 }
