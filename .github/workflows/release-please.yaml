@@ -19,7 +19,7 @@ jobs:
           # this assumes that you have created a personal access token
           # (PAT) and configured it as a GitHub action secret named
           # `RELEASE_PLEASE_TOKEN` (this secret name is not important).
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           # this is a built-in strategy in release-please, see "Action Inputs"
           # for more options
           release-type: node
@@ -32,21 +32,30 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # 指定 Node.js 版本
+          node-version: 22
 
       - name: Install pnpm
         if: ${{ steps.release.outputs.release_created }}
-        run: npm install -g pnpm # 安装 pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies and build
         if: ${{ steps.release.outputs.release_created }}
         run: |
           pnpm install --frozen-lockfile
+          pnpm run version
           pnpm run build
-          mv dist batch-move-files && zip -r build.zip ./batch-move-files
+          mv dist temp && zip -r build.zip ./temp
+
+      - name: Push to GitHub
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          pnpm run changelog
+          git add .
+          git commit -m "Release ${{ steps.release.outputs.tag_name }}"
+          git push
 
       - name: Upload Release Artifact
         if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} ./build.zip
+        run: gh release --draft upload ${{ steps.release.outputs.tag_name }} ./build.zip
