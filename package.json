@@ -6,7 +6,6 @@
 	"scripts": {
 		"dev": "vite build --watch",
 		"build": "vite build && cp manifest.json dist/",
-		"changelog": "pnpm release-it --ci --no-git.push",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"lint": "oxlint . && eslint .",
 		"lint:fix": "oxlint . --fix && eslint . --fix",
@@ -36,8 +35,5 @@
 		"typescript": "^5.9.3",
 		"vite": "^7.1.11",
 		"vitest": "^3.2.4"
-	},
-	"dependencies": {
-		"release-it": "^19.0.5"
 	}
 }
