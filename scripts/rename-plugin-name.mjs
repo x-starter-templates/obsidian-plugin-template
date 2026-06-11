@@ -16,8 +16,8 @@
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { createInterface } from 'node:readline/promises';
 import { resolve } from 'node:path';
+import { createInterface } from 'node:readline/promises';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const PKG_PATH = resolve(ROOT, 'package.json');
@@ -26,76 +26,76 @@ const MANIFEST_PATH = resolve(ROOT, 'manifest.json');
 const TAB = '\t';
 
 function parseArgs(argv) {
-	const out = {
-		id: undefined,
-		name: undefined,
-		description: undefined,
-		npmName: undefined,
-		dryRun: false,
-		noInteractive: false,
-		help: false,
-	};
-	for (let i = 2; i < argv.length; i++) {
-		const a = argv[i];
-		if (a === '--help' || a === '-h') {
-			out.help = true;
-			continue;
-		}
-		if (a === '--dry-run') {
-			out.dryRun = true;
-			continue;
-		}
-		if (a === '--no-interactive' || a === '-n') {
-			out.noInteractive = true;
-			continue;
-		}
-		if (a === '--id' || a === '--plugin-id') {
-			out.id = argv[++i];
-			continue;
-		}
-		if (a === '--name' || a === '--display-name') {
-			out.name = argv[++i];
-			continue;
-		}
-		if (a === '--description' || a === '--desc') {
-			out.description = argv[++i];
-			continue;
-		}
-		if (a === '--npm-name') {
-			out.npmName = argv[++i];
-			continue;
-		}
-		console.error(`Unknown argument: ${a}`);
-		process.exitCode = 1;
-		out.help = true;
-		break;
-	}
-	return out;
+  const out = {
+    id: undefined,
+    name: undefined,
+    description: undefined,
+    npmName: undefined,
+    dryRun: false,
+    noInteractive: false,
+    help: false,
+  };
+  for (let i = 2; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--help' || a === '-h') {
+      out.help = true;
+      continue;
+    }
+    if (a === '--dry-run') {
+      out.dryRun = true;
+      continue;
+    }
+    if (a === '--no-interactive' || a === '-n') {
+      out.noInteractive = true;
+      continue;
+    }
+    if (a === '--id' || a === '--plugin-id') {
+      out.id = argv[++i];
+      continue;
+    }
+    if (a === '--name' || a === '--display-name') {
+      out.name = argv[++i];
+      continue;
+    }
+    if (a === '--description' || a === '--desc') {
+      out.description = argv[++i];
+      continue;
+    }
+    if (a === '--npm-name') {
+      out.npmName = argv[++i];
+      continue;
+    }
+    console.error(`Unknown argument: ${a}`);
+    process.exitCode = 1;
+    out.help = true;
+    break;
+  }
+  return out;
 }
 
 /** @param {string} raw */
 function normalizePluginId(raw) {
-	return raw
-		.trim()
-		.toLowerCase()
-		.replace(/\s+/g, '-')
-		.replace(/[^a-z0-9-]/g, '')
-		.replace(/-+/g, '-')
-		.replace(/^-|-$/g, '');
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 /** @param {string} id */
 function defaultDisplayNameFromId(id) {
-	return id
-		.split('-')
-		.filter(Boolean)
-		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-		.join(' ');
+  return id
+    .split('-')
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 /** @param {string} name */
 function defaultNpmNameFromId(id) {
-	return `obsidian-${id}`;
+  return `obsidian-${id}`;
 }
 
 /**
@@ -103,13 +103,19 @@ function defaultNpmNameFromId(id) {
  * @param {string} id
  */
 function validatePluginId(id) {
-	if (!id) return 'Plugin id is required (--id).';
-	if (id.length > 128) return 'Plugin id is too long.';
-	if (!/^[a-z][a-z0-9-]*$/.test(id))
-		return 'Plugin id must start with a letter and contain only lowercase letters, digits, and hyphens.';
-	if (id.includes('--'))
-		return 'Plugin id must not contain consecutive hyphens.';
-	return null;
+  if (!id) {
+    return 'Plugin id is required (--id).';
+  }
+  if (id.length > 128) {
+    return 'Plugin id is too long.';
+  }
+  if (!/^[a-z][a-z0-9-]*$/.test(id)) {
+    return 'Plugin id must start with a letter and contain only lowercase letters, digits, and hyphens.';
+  }
+  if (id.includes('--')) {
+    return 'Plugin id must not contain consecutive hyphens.';
+  }
+  return null;
 }
 
 /**
@@ -117,16 +123,20 @@ function validatePluginId(id) {
  * @param {string} name
  */
 function validateNpmPackageName(name) {
-	if (!name) return 'npm package name is empty.';
-	if (encodeURIComponent(name) !== name)
-		return 'npm package name should be URL-safe (lowercase, hyphens recommended).';
-	if (!/^[a-z0-9-]+$/.test(name))
-		return 'npm package name may only contain lowercase letters, digits, and hyphens.';
-	return null;
+  if (!name) {
+    return 'npm package name is empty.';
+  }
+  if (encodeURIComponent(name) !== name) {
+    return 'npm package name should be URL-safe (lowercase, hyphens recommended).';
+  }
+  if (!/^[a-z0-9-]+$/.test(name)) {
+    return 'npm package name may only contain lowercase letters, digits, and hyphens.';
+  }
+  return null;
 }
 
 function printHelp() {
-	console.log(`Rename Obsidian plugin — sync package.json & manifest.json
+  console.log(`Rename Obsidian plugin — sync package.json & manifest.json
 
 Usage:
   node ./scripts/rename-plugin-name.mjs [--id <plugin-id> | interactive]
@@ -151,8 +161,8 @@ Optional:
 
 /** @param {string} answer */
 function isAffirmative(answer) {
-	const t = answer.trim().toLowerCase();
-	return t === 'y' || t === 'yes';
+  const t = answer.trim().toLowerCase();
+  return t === 'y' || t === 'yes';
 }
 
 /**
@@ -160,39 +170,34 @@ function isAffirmative(answer) {
  * @returns {Promise<string | undefined>} New description to apply, or undefined to leave unchanged.
  */
 async function promptDescriptionIfNeeded(opts) {
-	if (opts.cliDescription !== undefined) {
-		return opts.cliDescription;
-	}
-	if (
-		opts.dryRun ||
-		opts.noInteractive ||
-		!process.stdin.isTTY ||
-		!process.stdout.isTTY
-	) {
-		return undefined;
-	}
+  if (opts.cliDescription !== undefined) {
+    return opts.cliDescription;
+  }
+  if (opts.dryRun || opts.noInteractive || !process.stdin.isTTY || !process.stdout.isTTY) {
+    return undefined;
+  }
 
-	const rl = createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	});
-	try {
-		const ans = await rl.question(
-			'\nUpdate description in package.json and manifest.json? [y/N]: ',
-		);
-		if (!isAffirmative(ans)) {
-			return undefined;
-		}
-		const desc = await rl.question('New description: ');
-		const trimmed = desc.trim();
-		if (!trimmed) {
-			console.log('(Empty input; skipping description update.)');
-			return undefined;
-		}
-		return trimmed;
-	} finally {
-		rl.close();
-	}
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  try {
+    const ans = await rl.question(
+      '\nUpdate description in package.json and manifest.json? [y/N]: ',
+    );
+    if (!isAffirmative(ans)) {
+      return undefined;
+    }
+    const desc = await rl.question('New description: ');
+    const trimmed = desc.trim();
+    if (!trimmed) {
+      console.log('(Empty input; skipping description update.)');
+      return undefined;
+    }
+    return trimmed;
+  } finally {
+    rl.close();
+  }
 }
 
 /**
@@ -200,171 +205,163 @@ async function promptDescriptionIfNeeded(opts) {
  * @returns {Promise<{ id: string, name: string, npmName: string, dryRun: boolean }>}
  */
 async function promptInteractiveRename() {
-	const rl = createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	});
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
 
-	try {
-		console.log(
-			'\nRename Obsidian plugin — interactive mode (press Enter for bracketed defaults)\n',
-		);
+  try {
+    console.log(
+      '\nRename Obsidian plugin — interactive mode (press Enter for bracketed defaults)\n',
+    );
 
-		/** @type {string} */
-		let id = '';
-		while (true) {
-			const raw = await rl.question(
-				'Plugin id (kebab-case; matches .obsidian/plugins/<id> in the vault): ',
-			);
-			id = normalizePluginId(raw ?? '');
-			const err = validatePluginId(id);
-			if (!err) break;
-			console.error(`  ${err}`);
-		}
+    /** @type {string} */
+    let id = '';
+    while (true) {
+      const raw = await rl.question(
+        'Plugin id (kebab-case; matches .obsidian/plugins/<id> in the vault): ',
+      );
+      id = normalizePluginId(raw ?? '');
+      const err = validatePluginId(id);
+      if (!err) {
+        break;
+      }
+      console.error(`  ${err}`);
+    }
 
-		const defaultName = defaultDisplayNameFromId(id);
-		const nameLine = await rl.question(
-			`Display name (manifest.name) [${defaultName}]: `,
-		);
-		const name = nameLine.trim() || defaultName;
-		if (!name.trim()) {
-			throw new Error('Display name cannot be empty.');
-		}
+    const defaultName = defaultDisplayNameFromId(id);
+    const nameLine = await rl.question(`Display name (manifest.name) [${defaultName}]: `);
+    const name = nameLine.trim() || defaultName;
+    if (!name.trim()) {
+      throw new Error('Display name cannot be empty.');
+    }
 
-		const defaultNpm = defaultNpmNameFromId(id);
-		/** @type {string} */
-		let npmName = defaultNpm;
-		while (true) {
-			const line = await rl.question(`package.json npm name [${defaultNpm}]: `);
-			npmName = (line.trim() || defaultNpm).toLowerCase();
-			const err = validateNpmPackageName(npmName);
-			if (!err) break;
-			console.error(`  ${err}`);
-		}
+    const defaultNpm = defaultNpmNameFromId(id);
+    /** @type {string} */
+    let npmName = defaultNpm;
+    while (true) {
+      const line = await rl.question(`package.json npm name [${defaultNpm}]: `);
+      npmName = (line.trim() || defaultNpm).toLowerCase();
+      const err = validateNpmPackageName(npmName);
+      if (!err) {
+        break;
+      }
+      console.error(`  ${err}`);
+    }
 
-		const dryAns = await rl.question(
-			'Dry-run only (preview; do not write files)? [y/N]: ',
-		);
-		const dryRun = isAffirmative(dryAns);
+    const dryAns = await rl.question('Dry-run only (preview; do not write files)? [y/N]: ');
+    const dryRun = isAffirmative(dryAns);
 
-		return { id, name, npmName, dryRun };
-	} finally {
-		rl.close();
-	}
+    return { id, name, npmName, dryRun };
+  } finally {
+    rl.close();
+  }
 }
 
 async function run() {
-	const argvRest = process.argv.slice(2);
-	const args = parseArgs(process.argv);
-	if (process.exitCode === 1) {
-		printHelp();
-		return;
-	}
-	if (args.help) {
-		printHelp();
-		return;
-	}
+  const argvRest = process.argv.slice(2);
+  const args = parseArgs(process.argv);
+  if (process.exitCode === 1) {
+    printHelp();
+    return;
+  }
+  if (args.help) {
+    printHelp();
+    return;
+  }
 
-	const wantInteractiveWizard =
-		argvRest.length === 0 && process.stdin.isTTY && process.stdout.isTTY;
+  const wantInteractiveWizard =
+    argvRest.length === 0 && process.stdin.isTTY && process.stdout.isTTY;
 
-	if (wantInteractiveWizard) {
-		const filled = await promptInteractiveRename();
-		args.id = filled.id;
-		args.name = filled.name;
-		args.npmName = filled.npmName;
-		args.dryRun = filled.dryRun;
-	}
+  if (wantInteractiveWizard) {
+    const filled = await promptInteractiveRename();
+    args.id = filled.id;
+    args.name = filled.name;
+    args.npmName = filled.npmName;
+    args.dryRun = filled.dryRun;
+  }
 
-	const rawId = args.id;
-	if (!rawId) {
-		console.error(
-			'Error: Pass --id, or run with no arguments in an interactive terminal.',
-		);
-		printHelp();
-		process.exitCode = 1;
-		return;
-	}
+  const rawId = args.id;
+  if (!rawId) {
+    console.error('Error: Pass --id, or run with no arguments in an interactive terminal.');
+    printHelp();
+    process.exitCode = 1;
+    return;
+  }
 
-	const id = normalizePluginId(rawId);
-	const idErr = validatePluginId(id);
-	if (idErr) {
-		console.error(`Error: ${idErr}`);
-		process.exitCode = 1;
-		return;
-	}
+  const id = normalizePluginId(rawId);
+  const idErr = validatePluginId(id);
+  if (idErr) {
+    console.error(`Error: ${idErr}`);
+    process.exitCode = 1;
+    return;
+  }
 
-	const displayName = args.name?.trim() || defaultDisplayNameFromId(id);
-	if (!displayName) {
-		console.error('Error: display name is empty.');
-		process.exitCode = 1;
-		return;
-	}
+  const displayName = args.name?.trim() || defaultDisplayNameFromId(id);
+  if (!displayName) {
+    console.error('Error: display name is empty.');
+    process.exitCode = 1;
+    return;
+  }
 
-	const npmName = (
-		args.npmName?.trim() || defaultNpmNameFromId(id)
-	).toLowerCase();
-	const npmErr = validateNpmPackageName(npmName);
-	if (npmErr) {
-		console.error(`Error: ${npmErr}`);
-		process.exitCode = 1;
-		return;
-	}
+  const npmName = (args.npmName?.trim() || defaultNpmNameFromId(id)).toLowerCase();
+  const npmErr = validateNpmPackageName(npmName);
+  if (npmErr) {
+    console.error(`Error: ${npmErr}`);
+    process.exitCode = 1;
+    return;
+  }
 
-	let pkg = JSON.parse(readFileSync(PKG_PATH, 'utf8'));
-	let manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
+  let pkg = JSON.parse(readFileSync(PKG_PATH, 'utf8'));
+  let manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
 
-	const oldId = manifest.id;
-	const oldPkgName = pkg.name;
-	const oldManifestName = manifest.name;
+  const oldId = manifest.id;
+  const oldPkgName = pkg.name;
+  const oldManifestName = manifest.name;
 
-	const nextPkg = { ...pkg, name: npmName };
-	const nextManifest = { ...manifest, id, name: displayName };
+  const nextPkg = { ...pkg, name: npmName };
+  const nextManifest = { ...manifest, id, name: displayName };
 
-	const descriptionToApply = await promptDescriptionIfNeeded({
-		dryRun: args.dryRun,
-		noInteractive: args.noInteractive,
-		cliDescription: args.description,
-	});
+  const descriptionToApply = await promptDescriptionIfNeeded({
+    dryRun: args.dryRun,
+    noInteractive: args.noInteractive,
+    cliDescription: args.description,
+  });
 
-	if (descriptionToApply !== undefined) {
-		nextPkg.description = descriptionToApply;
-		nextManifest.description = descriptionToApply;
-	}
+  if (descriptionToApply !== undefined) {
+    nextPkg.description = descriptionToApply;
+    nextManifest.description = descriptionToApply;
+  }
 
-	const summary = [
-		['package.json name', `${oldPkgName} → ${nextPkg.name}`],
-		['manifest id', `${oldId} → ${nextManifest.id}`],
-		['manifest name', `${oldManifestName} → ${nextManifest.name}`],
-	];
-	if (descriptionToApply !== undefined) {
-		summary.push([
-			'description',
-			`package: ${JSON.stringify(pkg.description)} → ${JSON.stringify(nextPkg.description)}\n${TAB}manifest: ${JSON.stringify(manifest.description)} → ${JSON.stringify(nextManifest.description)}`,
-		]);
-	}
+  const summary = [
+    ['package.json name', `${oldPkgName} → ${nextPkg.name}`],
+    ['manifest id', `${oldId} → ${nextManifest.id}`],
+    ['manifest name', `${oldManifestName} → ${nextManifest.name}`],
+  ];
+  if (descriptionToApply !== undefined) {
+    summary.push([
+      'description',
+      `package: ${JSON.stringify(pkg.description)} → ${JSON.stringify(nextPkg.description)}\n${TAB}manifest: ${JSON.stringify(manifest.description)} → ${JSON.stringify(nextManifest.description)}`,
+    ]);
+  }
 
-	console.log('Planned changes:\n');
-	for (const [label, val] of summary) {
-		console.log(`  ${label}: ${val}\n`);
-	}
+  console.log('Planned changes:\n');
+  for (const [label, val] of summary) {
+    console.log(`  ${label}: ${val}\n`);
+  }
 
-	if (args.dryRun) {
-		console.log('(dry-run: no files written)');
-		return;
-	}
+  if (args.dryRun) {
+    console.log('(dry-run: no files written)');
+    return;
+  }
 
-	writeFileSync(PKG_PATH, `${JSON.stringify(nextPkg, null, TAB)}\n`, 'utf8');
-	writeFileSync(
-		MANIFEST_PATH,
-		`${JSON.stringify(nextManifest, null, TAB)}\n`,
-		'utf8',
-	);
+  writeFileSync(PKG_PATH, `${JSON.stringify(nextPkg, null, TAB)}\n`, 'utf8');
+  writeFileSync(MANIFEST_PATH, `${JSON.stringify(nextManifest, null, TAB)}\n`, 'utf8');
 
-	console.log(`Updated:\n  ${PKG_PATH}\n  ${MANIFEST_PATH}`);
+  console.log(`Updated:\n  ${PKG_PATH}\n  ${MANIFEST_PATH}`);
 }
 
 run().catch((err) => {
-	console.error(err);
-	process.exitCode = 1;
+  console.error(err);
+  process.exitCode = 1;
 });

@@ -23,14 +23,14 @@ jobs:
           manifest-file: .release-please-manifest.json
 
       - name: Checkout code
-        if: ${{ steps.release.outputs.release_created || steps.release.outputs.prs }}
-        uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created}}
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
         if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install pnpm
         if: ${{ steps.release.outputs.release_created }}
