@@ -16,6 +16,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         dir: 'dist',
+        entryFileNames: 'main.js',
       },
       external: [
         'obsidian',
