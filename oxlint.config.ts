@@ -4,6 +4,13 @@ export default defineConfig({
   categories: {},
   rules: {
     'eslint/curly': ['error', 'all'],
+    'typescript/consistent-type-imports': [
+      'error',
+      {
+        prefer: 'type-imports',
+        fixStyle: 'separate-type-imports',
+      },
+    ],
   },
   settings: {
     'jsx-a11y': {
