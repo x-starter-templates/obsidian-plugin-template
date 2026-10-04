@@ -13,6 +13,13 @@
         { "type": "docs", "section": "Documentation", "hidden": true },
         { "type": "chore", "section": "Miscellaneous", "hidden": true },
         { "type": "build", "section": "Build System", "hidden": true }
+      ],
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "manifest.json",
+          "jsonpath": "$.version"
+        }
       ]
     }
   }

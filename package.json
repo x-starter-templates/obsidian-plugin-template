@@ -11,6 +11,7 @@
     "dev": "vite build --watch",
     "build": "vite build && cp manifest.json dist/",
     "version": "node version-bump.mjs && git add manifest.json versions.json",
+    "check:versions": "node scripts/check-versions.mjs",
     "lint": "oxlint && tsc -p tsconfig.app.json --noEmit",
     "lint:fix": "oxlint --fix",
     "fmt:fix": "oxfmt",
