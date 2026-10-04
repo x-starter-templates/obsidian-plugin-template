@@ -15,4 +15,4 @@ changelog:
         - enhancement
     - title: Miscellaneous
       labels:
-        - "*"
+        - '*'
